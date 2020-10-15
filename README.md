@@ -1,2 +1,1 @@
-# pdi
-Processamento Digital de Imagens
+# ajustetecnico.github.io
