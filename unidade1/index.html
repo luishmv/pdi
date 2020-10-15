@@ -498,14 +498,13 @@ Foram utilizados os seguintes dados de entrada: <br><br>
 </div>
 
 <div class="sect3">
-<br><br>
 O resultado pode ser visto nas imagens abaixo: <br><br>
   
 <div class="imageblock">
 <div class="content">
 <img src="figs/cat.png" alt="cat.png">
 </div>
-<div class="title">Imagem Original</div>
+<div class="title">Imagem original</div>
 </div>
 <div class="imageblock">
 <div class="content">
@@ -516,84 +515,87 @@ O resultado pode ser visto nas imagens abaixo: <br><br>
 </div>
 <div class="sect3">
 <h4 id="true1-2-troca-de-quadrantes"><a class="anchor" href="#true1-2-troca-de-quadrantes"></a>1.2. Troca de Quadrantes</h4>
-<div class="paragraph">
-<p>O segundo exercício consiste em trocar os quadrantes de uma imagem, considerando que essa imagem será dividida em quatro quadrantes e eles serão trocados em diagonal.</p>
-</div>
-<div class="paragraph">
-<p>Para isso, utiliza-se das funções Mat() e Rect() fornecidas pelo OpenCV para definir as regiões e a função copyTo() para fazer a troca entre as regiões definidas no primeiro momento do código.</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="truec-digo-2"><a class="anchor" href="#truec-digo-2"></a>Código</h4>
+<p style="text-align: justify;"> Esse segundo exercício pede para implementar um programa que faça a troca de quadrantes da imagem, sendo o superior esquerdo trocado com o inferior direito e o superior direito
+  trocado com o inferior esquerdo. 
+Para tal, foi implementado um programa que primeiramente realizou a cópia da imagem em uma outra variável. Essa nova variável foi manipulada para que primeiramente houvesse a troca do
+primeiro e do quarto quadrante, e em seguinte foi feita a troca do segundo com o terceiro quadrante. O código <a href="codigos/trocaregioes.cpp">trocaregioes.cpp</a> pode ser conferido abaixo.
+</p>
+
 <div class="listingblock">
-<div class="title">Código 2 - trocaregioes.cpp</div>
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-cpp" data-lang="cpp">#include &lt;iostream&gt;
-#include &lt;opencv2/opencv.hpp&gt;
-
-
-using namespace cv;
-using namespace std;
-
-int main(int, char**){
-  Mat image;
-  unsigned char aux;
-
-
-  image= imread("biel.png",CV_LOAD_IMAGE_GRAYSCALE);
-
-   int linhas =image.size().width;
-   int colunas=image.size().height;
-
-  if(!image.data)
-    cout &lt;&lt; "nao abriu imagem" &lt;&lt; endl;
-
-  namedWindow("Troca Regiões",WINDOW_AUTOSIZE);
-
-  for(int i=0;i&lt;colunas/2;i++){
-    for(int j=0;j&lt;linhas/2;j++){
-     	aux = image.at&lt;uchar&gt;(i,j);
-	image.at&lt;uchar&gt;(i,j) = image.at&lt;uchar&gt;(i+colunas/2,j+linhas/2);
-	image.at&lt;uchar&gt;(i+colunas/2,j+linhas/2) = aux;
+  <div class="title">Codigo 2 - trocaregioes.cpp</div>
+  <div class="content">
+  <pre class="highlightjs highlight"><code class="language-cpp" data-lang="cpp">
+    #include &#x3C;iostream&#x3E;
+    #include &#x3C;opencv2/opencv.hpp&#x3E;
+    
+    using namespace cv;
+    using namespace std;
+    
+    int main(int, char**){
+      Mat image, imgModificada;
+      int i, j;
+      
+      image = imread(&#x22;cat.jpg&#x22;, IMREAD_GRAYSCALE);
+      
+      if(!image.data) 
+        cout &#x3C;&#x3C; &#x22;nao abriu cat.jpg&#x22; &#x3C;&#x3C; endl;
+        
+      int width = image.size().width;
+      int height = image.size().height;
+    
+      namedWindow(&#x22;imagem original&#x22;, WINDOW_AUTOSIZE);
+      namedWindow(&#x22;imagem modificada&#x22;, WINDOW_AUTOSIZE);
+      
+      image.copyTo(imgModificada);
+      
+      //Primeiro Quadrante - (y, x): (0, 0) -&#x3E; (width/2, height/2)
+      //Segundo Quadrante - (y, x): (width/2, 0) -&#x3E; (width, height/2)
+      //Terceiro Quadrante - (y, x): (0, height/2) -&#x3E; (width/2, height)
+      //Quarto Quadrante - (y, x): (width/2, height/2) -&#x3E; (width, height)
+      
+      //for utilizado para trocar o primeiro e quarto quadrante
+      for(i = 0; i &#x3C; width/2; i++){
+        for(j = 0; j &#x3C; height/2; j++){
+    &#x9;imgModificada.at&#x3C;uchar&#x3E;(i, j) = image.at&#x3C;uchar&#x3E;(i + width/2, j + height/2);
+    &#x9;imgModificada.at&#x3C;uchar&#x3E;(i + width/2, j + height/2) = image.at&#x3C;uchar&#x3E;(i,j);
+        }
+      }
+    
+      //for utilizado para trocar o segundo e terceiro quadrante
+      for(i = width/2; i &#x3C; width; i++){
+          for(j = 0; j &#x3C; height/2; j++){
+            imgModificada.at&#x3C;uchar&#x3E;(i, j) = image.at&#x3C;uchar&#x3E;(i - width/2, j + height/2);
+            imgModificada.at&#x3C;uchar&#x3E;(i - width/2, j + height/2) = image.at&#x3C;uchar&#x3E;(i, j);
+        }
+      }
+      
+      imshow(&#x22;imagem original &#x22;, image);
+      imshow(&#x22;imagem modificada&#x22;, imgModificada); 
+      imwrite(&#x22;imgModificadaQ2.jpg&#x22;, imgModificada);
+       
+      waitKey();
+      return 0;
     }
-  }
+    
+  </code></pre>
+  </div>
+  </div>
 
-  for(int i=colunas/2;i&lt;colunas;i++){
-      for(int j=0;j&lt;linhas/2;j++){
-       	aux = image.at&lt;uchar&gt;(i,j);
-	image.at&lt;uchar&gt;(i,j) = image.at&lt;uchar&gt;(i-colunas/2,j+linhas/2);
-	image.at&lt;uchar&gt;(i-colunas/2,j+linhas/2) = aux;
-    }
-  }
+    O resultado pode ser conferido abaixo: <br><br>
 
-  imshow("Troca Regiões", image);
-  imwrite("imagem_trocada.png", image);
-  waitKey();
+  <div class="imageblock">
+    <div class="content">
+    <img src="figs/cat.png" alt="cat.png">
+    </div>
+    <div class="title">Imagem original</div>
+    </div>
+    <div class="imageblock">
+    <div class="content">
+    <img src="figs/imgModificadaQ2.jpg" alt="quadrantes_trocados.png">
+    </div>
+    <div class="title">Imagem com os quadrantes trocados</div>
+    </div>
 
-  return 0;
-}</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Para compilar e executar o código basta utilizar os comandos:</p>
-</div>
-<div class="paragraph">
-<p>$ make trocaregioes</p>
-</div>
-<div class="paragraph">
-<p>$ ./trocaregioes</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="trueresultado-2"><a class="anchor" href="#trueresultado-2"></a>Resultado</h4>
-<div class="imageblock">
-<div class="content">
-<img src="imagem_trocada.png" alt="imagem trocada.png">
-</div>
-<div class="title">Figure 3. Imagem com quadrantes trocados</div>
-</div>
-</div>
-</div>
 <div class="sect2">
 <h3 id="true2-preechendo-regi-es"><a class="anchor" href="#true2-preechendo-regi-es"></a>2. Preenchendo Regiões</h3>
 <div class="sect3">
@@ -752,266 +754,57 @@ Essa solução proposta pode ser vista no código abaixo.
 <h4 id="true3-1-equaliza-o"><a class="anchor" href="#true3-1-equaliza-o"></a>3.1. Equalização do histograma</h4>
 <div class="paragraph">
 <p style="text-align: justify;">
-  Esse exercício pede para fazer a equalização dos histogramas de imagens capturadas
-  por alguma câmera do dispositivo, se baseando no código do 
+  Esse exercício pede para que seja escrito um programa que faça a equalização dos histogramas de imagens capturadas
+  por alguma câmera do dispositivo, se baseando no código <a href="codigos/histogram.cpp">histogram.cpp</a>
+ disponibilizado pelo professor. Foram necessárias algumas pequenas modificações considerando que agora se 
+ trabalharia com escalas de cinza ao invés de imagens RGB. <br><br>
 
+ A imagem é capturada pelo programa, é convertida em tons de cinza, o histograma dela é equalizado
+ através da função disponibilizada pelo OpenCV equalizeHist() e em seguida são calculadas
+ os histogramas da imagem cinza original e a equalizada através da função calcHist(). Os resultados
+ são exibidos lado a lado pelo programa. O código completo pode ser visto aqui: <a href="codigos/equalize.cpp">equalize.cpp</a> <br><br>
 
+ O resultado pode ser visto nas imagens abaixo. É possível observar que na imagem equalizada existe uma melhor distribuição dos tons de cinza presentes, aparentando uma melhor qualidade.
 </p>
-</div>
-<div class="paragraph">
-<p>Histogramas são dados sobre a imagem organizados em forma de faixas de valores. Como até o momento estamos trabalhando com tons de cinza, o histograma para imagens desse formato consiste em exibir todos os tons de cinza presentes na imagem.</p>
-</div>
-<div class="paragraph">
-<p>Para uma primeira utilização de histogramas fizemos a equalização das imagens capturadas pela câmera em tempo real. O OpenCV fornece a função equalizeHist() que a partir de uma imagem como fonte e outra como destino, aplica a equalização nos exibindo a imagem original e também equalizada.</p>
-</div>
-<div class="paragraph">
-<p>A equalização resulta em uma melhor distribuição dos tons de cinza presentes na imagem, como vimos, o histograma documenta a ocorrência dos tons de cinza para imagens em grey scale, sendo assim, esses tons que podem exibir picos no histograma antes da equalização, ficam exibidos de maneira mais distribuída após a equalização, dando um efeito de transição de tons de maneira não brusca.</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="truec-digo-4"><a class="anchor" href="#truec-digo-4"></a>Código</h4>
-<div class="listingblock">
-<div class="title">Código 4 - equalize.cpp</div>
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-cpp" data-lang="cpp">#include &lt;iostream&gt;
-#include &lt;opencv2/opencv.hpp&gt;
 
-using namespace cv;
-using namespace std;
-
-int main(int argc, char** argv){
-
-  Mat image, image_eq, hist, hist_eq;
-  VideoCapture cap;
-  int nbins = 64;
-  float range[] = {0, 256};
-  const float *histrange = { range };
-  int key;
-
-  bool uniform = true;
-  bool acummulate = false;
-
-  cap.open(0);
-
-  if(!cap.isOpened()){
-    cout &lt;&lt; "cameras indisponiveis";
-    return -1;
-  }
-
-  int histw = nbins, histh = nbins/2;
-  Mat histImg(histh, histw, CV_8UC1, Scalar(0,0,0));
-  Mat histImg_eq(histh, histw, CV_8UC1, Scalar(0,0,0));
-
-  while(true){
-
-    cap &gt;&gt; image;
-    cvtColor(image, image, CV_BGR2GRAY);
-    equalizeHist(image, image_eq);
-
-    calcHist(&amp;image, 1, 0, Mat(), hist, 1,
-             &amp;nbins, &amp;histrange,
-             uniform, acummulate);
-    calcHist(&amp;image_eq, 1, 0, Mat(), hist_eq, 1,
-             &amp;nbins, &amp;histrange,
-             uniform, acummulate);
-
-
-    normalize(hist, hist, 0, histImg.rows, NORM_MINMAX, -1, Mat());
-    normalize(hist_eq, hist_eq, 0, histImg_eq.rows, NORM_MINMAX, -1,
-Mat());
-
-    histImg.setTo(Scalar(0));
-    histImg_eq.setTo(Scalar(0));
-
-    for(int i=0; i&lt;nbins; i++){
-      line(histImg,
-           Point(i, histh),
-           Point(i, histh-cvRound(hist.at&lt;float&gt;(i))),
-           Scalar(255, 255, 255), 1, 8, 0);
-      line(histImg_eq,
-           Point(i, histh),
-           Point(i, histh-cvRound(hist_eq.at&lt;float&gt;(i))),
-           Scalar(255, 255, 255), 1, 8, 0);
-    }
-
-    histImg.copyTo(image(Rect(0, 0,nbins, histh)));
-    histImg_eq.copyTo(image_eq(Rect(0, 0,nbins, histh)));
-
-    imshow("Imagem Original", image);
-    imshow("Imagem Equalizada", image_eq);
-    imwrite("imagemOriginal.png", image);
-    imwrite("imagemEqualizada.png", image_eq);
-    key = waitKey(30);
-  }
-  return 0;
-}</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Para compilar e executar o código basta utilizar os comandos:</p>
-</div>
-<div class="paragraph">
-<p>$ make equalize</p>
-</div>
-<div class="paragraph">
-<p>$ ./equalize</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="trueresultado-4"><a class="anchor" href="#trueresultado-4"></a>Resultado</h4>
-<div class="paragraph">
-<p>O resultado é mostrado através de duas imagens (imagem original e imagem equalizada) capturadas em um instante de tempo do vídeo.</p>
-</div>
 <div class="imageblock">
-<div class="content">
-<img src="imageOriginal.png" alt="imageOriginal.png">
+  <div class="content">
+  <img src="figs/imagemOriginal2.png" alt="result.png">
+  </div>
+  <div class="title">Imagem original.</div>
 </div>
-<div class="title">Figure 5. Imagem Original</div>
-</div>
+
 <div class="imageblock">
-<div class="content">
-<img src="imageEqualizada.png" alt="imageEqualizada.png">
+  <div class="content">
+  <img src="figs/imagemEqualizada2.png" alt="result.png">
+  </div>
+  <div class="title">Imagem equalizada.</div>
 </div>
-<div class="title">Figure 6. Imagem Equalizada</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="true3-2-comparando-histogramas-motion-detector"><a class="anchor" href="#true3-2-comparando-histogramas-motion-detector"></a>3.2. Comparando histogramas - Motion Detector</h4>
-<div class="paragraph">
-<p>Continuando com a manipulação com histogramas agora vamos visualizar uma prática de comparação de histogramas, tendo como finalidade detectar movimento. Para isso, continuamos com a captura de imagens pela câmera em tempo real a fim de obter várias imagens.</p>
-</div>
-<div class="paragraph">
-<p>O objetivo é que o histograma seja calculado continuamente durante a captura de imagens e utilizando-se apenas de uma das três componentes do histograma já é possível realizar a comparação.</p>
-</div>
-<div class="paragraph">
-<p>Com essa comparação temos informação de movimento, sendo detectado quando um pixel foi deslocado na imagem, ou seja, a comparação entre os histogramas tem como objetivo obter a diferença do valor de um pixel entre a imagem atual e uma anterior.</p>
-</div>
-<div class="paragraph">
-<p>Escolhemos ainda uma diferença crítica para que um alerta seja disparado indicando que ocorreu um movimento.</p>
-</div>
+
 </div>
 <div class="sect3">
-<h4 id="truec-digo-5"><a class="anchor" href="#truec-digo-5"></a>Código</h4>
-<div class="listingblock">
-<div class="title">Código 5 - motiondetector.cpp</div>
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-cpp" data-lang="cpp">#include &lt;iostream&gt;
-#include &lt;opencv2/opencv.hpp&gt;
+<h4 id="true3-2-comparando-histogramas-motion-detector"><a class="anchor" href="#true3-2-comparando-histogramas-motion-detector"></a>3.2. Motion Detector</h4>
 
-using namespace cv;
-using namespace std;
+<p style="text-align: justify;"> Nesse exercício, é explorado o conceito de motion detector, ou detector de movimento. Utilizando os conceitos trabalhados de histogramas
+de imagens, é pedido um programa que seja capaz de capturar imagens em tempo real através de uma câmera disponibilizada pelo dispositivo que diga quando houver movimento. <br><br>
 
-int main(int argc, char** argv){
+Para fazer a implementação desse programa, teve-se de considerar uma função que identificasse o quanto um histograma de uma imagem difere do histograma da imagem anterior. 
+Utilizando esse conceito, se o valor dessa função varia muito de uma imagem para outra significa que provavelmente houve movimento. Assim, se utilizou da função compareHist()
+do OpenCV para calcular a correlação entre dois histogramas, sendo um deles o da imagem capturada no instante atual e o outro da imagem capturada no instante antes. Quando esse valor
+de correlação é menor que 0.9, é considerado que houve movimento. <br><br>
 
-  Mat image, image2;
-  vector&lt;Mat&gt; planes;
-  Mat histR, histR2;
-int width, height;
-  VideoCapture cap("https://media.giphy.com/media/11JTxkrmq4bGE0/giphy.mp4");
-  float diferenca;
-  int nbins = 64;
-  float range[] = {0, 256};
-  const float *histrange = { range };
-  int key;
+O código completo pode ser conferido aqui: <a href="codigos/motiondetector.cpp">motiondetector.cpp</a> <br><br>
 
-  bool uniform = true;
-  bool acummulate = false;
+O resultado pode ser conferido no vídeo abaixo, que mostra o programa em execução. Durante a captura feito pelo programa é possível observar que, quando a mão passa pela câmera, 
+é detectado movimento.
+</p>
 
-  cap.open("video.mp4");
-
-  if(!cap.isOpened()){
-    cout &lt;&lt; "cameras indisponiveis";
-    return -1;
-  }
-
-width=cap.get(CV_CAP_PROP_FRAME_WIDTH);
-  height=cap.get(CV_CAP_PROP_FRAME_HEIGHT);
-  std::cout &lt;&lt; "largura=" &lt;&lt; width &lt;&lt; "\n";;
-  std::cout &lt;&lt; "altura =" &lt;&lt; height&lt;&lt; "\n";;
-
-  Size frameSize(static_cast&lt;int&gt;(width), static_cast&lt;int&gt;(height));
-  VideoWriter out ("Fast.mp4", CV_FOURCC('P','I','M','1'), 10, frameSize, true);
-
-
-  int histw = nbins, histh = nbins/2;
-  Mat histImgR(histh, histw, CV_8UC3, Scalar(0,0,0));
-  Mat histImgR2(histh, histw, CV_8UC3, Scalar(0,0,0));
-  bool primeira_imagem = true;
-
-  while(true){
-
-    cap &gt;&gt; image;
-    split(image, planes);
-
-    if(!primeira_imagem){
-      histR.copyTo(histR2);
-      histImgR.copyTo(histImgR2);
-    }
-
-    calcHist(&amp;planes[0], 1, 0, Mat(), histR, 1,
-             &amp;nbins, &amp;histrange,
-             uniform, acummulate);
-    normalize(histR, histR, 0, histImgR.rows, NORM_MINMAX, -1, Mat());
-
-    histImgR.setTo(Scalar(0));
-
-
-    for(int i=0; i&lt;nbins; i++){
-      line(histImgR,
-           Point(i, histh),
-           Point(i, histh-cvRound(histR.at&lt;float&gt;(i))),
-           Scalar(0, 0, 255), 1, 8, 0);
-    }
-
-    histImgR.copyTo(image(Rect(0, 0,nbins, histh)));
-
-    if(!primeira_imagem){
-      histImgR2.copyTo(image(Rect(0,histh,nbins,histh)));
-      image2 = image;
-    }
-
-    if(!primeira_imagem){
-      diferenca = compareHist(histR,histR2, CV_COMP_CORREL);
-      if(diferenca&gt;0.8)  {
-       putText(image, "Movimento detectado!", Point(1,100),
-              FONT_HERSHEY_SIMPLEX, .7,
-                Scalar(0,0,255,255), 2);
-      }
-    }
-
-
-    primeira_imagem = false;
-    imshow("Imagem", image);
-    //imshow("Imagem Anterior", image2);
-    key = waitKey(30);
-    //if(waitKey(30) &gt;= 0) break;
-  }
-  return 0;
-}</code></pre>
 </div>
-</div>
-<div class="paragraph">
-<p>Para compilar e executar o código basta utilizar os comandos</p>
-</div>
-<div class="paragraph">
-<p>$ make motiondetector
-$ ./motiondetector</p>
-</div>
-<div class="paragraph">
-<p>====Resultado</p>
-</div>
+
 <div class="videoblock">
-<div class="title">Video Original</div>
+<div class="title">Vídeo demonstrando o funcionamento do programa Motion Detector</div>
 <div class="content">
-<video src="video.mp4" controls>
-Your browser does not support the video tag.
-</video>
-</div>
-</div>
-<div class="videoblock">
-<div class="title">Detectando Movimento</div>
-<div class="content">
-<video src="saida.mp4" controls>
+<video src="figs/motiondetector.mp4" controls>
 Your browser does not support the video tag.
 </video>
 </div>
