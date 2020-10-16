@@ -812,191 +812,71 @@ Your browser does not support the video tag.
 </div>
 </div>
 <div class="sect2">
-<h3 id="true4-filtragem-no-dom-nio-espacial"><a class="anchor" href="#true4-filtragem-no-dom-nio-espacial"></a>4. Filtragem no Domínio Espacial</h3>
+<h3 id="true4-filtragem-no-dom-nio-espacial"><a class="anchor" href="#true4-filtragem-no-dom-nio-espacial"></a>4. Filtragem no domínio espacial I</h3>
 <div class="sect3">
 <h4 id="true4-1-laplaciano-do-gaussiano"><a class="anchor" href="#true4-1-laplaciano-do-gaussiano"></a>4.1. Laplaciano do Gaussiano</h4>
-<div class="paragraph">
-<p>Nesse exercício iremos demonstrar o resultado do filtro laplaciano do gaussiano em um imagem em tons de cinza. Para isso utilizamos o código base fornecido pelo professor Agostinho Brito onde aplica os filtros média, gaussiano, detector de bordas horizontais, detector de bordas verticais e laplaciano que podem ser escolhidos para serem aplicados.</p>
-</div>
-<div class="paragraph">
-<p>Adicionamos então o novo filtro que permite calcular o laplaciano do gaussiano da nossa imagem e para efeitos de conclusão podemos comparar a aplicação do laplaciano com o laplaciano do gaussiano, visto que esse é um filtro que varia do laplaciano com o intuito de remover ruídos.</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="truec-digo-6"><a class="anchor" href="#truec-digo-6"></a>Código</h4>
-<div class="listingblock">
-<div class="title">Código 6 - laplgauss.cpp</div>
+<p style="text-align: justify;">
+  Esse exercício explora o uso da filtragem em imagens em tons de cinza. O código <a href="codigos/filtroespacial.cpp">filtroespacial.cpp</a>, disponibilizado pelo professor, implementa
+  diversos tipos de filtro, entre eles o filtro média, o filtro laplaciano e o filtro gaussiano, para serem aplicados em imagens capturadas em tempo real em tons de cinza, demonstrando
+  o efeito de cada um desses filtros. A tarefa pede que seja adicionada mais uma opção de filtro para o programa, no caso o filtro laplaciano do gaussiano.  <br><br>
+
+  Para tal, deve ser feita uma modificação no código para que possa haver a aplicação de dois filtros simultaneamente em uma imagem. No caso do filtro laplaciano do gaussiano, deve ser
+  primeiro aplicado o filtro gaussiano e depois o laplaciano. Assim, depois que a tecla correspondente ao laplaciano do gaussiano for pressionada e o filtro gaussiano for aplicado, 
+  deve-se aplicar o filtro laplaciano a essa imagem já filtrada para que os efeitos de ambos os filtros sejam mostrados ao usuário. Isso foi feita através de uma variável auxiliar
+  booleano lg que diz se o filtro selecionado pelo usuário, correspondente a opção j, é o laplaciano do gaussiano ou não antes de exibir a imagem pro usuário. Caso seja, o filtro laplaciano é aplicado a imagem
+  previamente filtrada. Esses trechos de edição podem ser vistos abaixo: 
+</p>
+
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-cpp" data-lang="cpp">#include &lt;iostream&gt;
-#include &lt;opencv2/opencv.hpp&gt;
-
-using namespace cv;
-using namespace std;
-
-void printmask(Mat &amp;m){
-  for(int i=0; i&lt;m.size().height; i++){
-    for(int j=0; j&lt;m.size().width; j++){
-      cout &lt;&lt; m.at&lt;float&gt;(i,j) &lt;&lt; ",";
-    }
-    cout &lt;&lt; endl;
-  }
-}
-
-void printmaskLG(Mat &amp;g, Mat &amp;l){
-  for(int i=0; i&lt;g.size().height; i++){
-    for(int j=0; j&lt;g.size().width; j++){
-      cout &lt;&lt; g.at&lt;float&gt;(i,j) + l.at&lt;float&gt;(i,j)&lt;&lt; ",";
-    }
-    cout &lt;&lt; endl;
-  }
-}
-
-void menu(){
-  cout &lt;&lt; "\npressione a tecla para ativar o filtro: \n"
-	"a - calcular modulo\n"
-    "m - media\n"
-    "g - gauss\n"
-    "v - vertical\n"
-	"h - horizontal\n"
-    "l - laplaciano\n"
-    "s - Laplaciano do Gaussiano\n"
-	"esc - sair\n";
-}
-
-int main(int argvc, char** argv){
-  VideoCapture video;
-  float media[] = {1,1,1,
-				   1,1,1,
-				   1,1,1};
-  float gauss[] = {1,2,1,
-				   2,4,2,
-				   1,2,1};
-  float horizontal[]={-1,0,1,
-					  -2,0,2,
-					  -1,0,1};
-  float vertical[]={-1,-2,-1,
-					0,0,0,
-					1,2,1};
-  float laplacian[]={0,-1,0,
-					 -1,4,-1,
-					 0,-1,0};
-
-  Mat cap, frame, frame32f, frameFiltered;
-  Mat mask(3,3,CV_32F), mask1;
-  Mat result, result1;
-  double width, height;
-  int absolut;
-  char key;
-
-  video.open(0);
-  if(!video.isOpened())
-    return -1;
-  width=video.get(CV_CAP_PROP_FRAME_WIDTH);
-  height=video.get(CV_CAP_PROP_FRAME_HEIGHT);
-  std::cout &lt;&lt; "largura=" &lt;&lt; width &lt;&lt; "\n";;
-  std::cout &lt;&lt; "altura =" &lt;&lt; height&lt;&lt; "\n";;
-
-  namedWindow("filtroespacial",1);
-
-  mask = Mat(3, 3, CV_32F, media);
-  scaleAdd(mask, 1/9.0, Mat::zeros(3,3,CV_32F), mask1);
-  swap(mask, mask1);
-  absolut=1; // calcs abs of the image
-
-  menu();
-  for(;;){
-    video &gt;&gt; cap;
-    cvtColor(cap, frame, CV_BGR2GRAY);
-    flip(frame, frame, 1);
-    imshow("original", frame);
-    imwrite("original.jpg", frame);
-    frame.convertTo(frame32f, CV_32F);
-    filter2D(frame32f, frameFiltered,
-			 frame32f.depth(), mask, Point(1,1), 0);
-    if(absolut){
-      frameFiltered=abs(frameFiltered);
-    }
-    frameFiltered.convertTo(result, CV_8U);
-    imshow("filtroespacial", result);
-    imwrite("resultado_filtro.jpg", result);
-    key = (char) waitKey(10);
-    if( key == 27 ) break; // esc pressed!
-    switch(key){
-    case 'a':
-	  menu();
-      absolut=!absolut;
-      break;
-    case 'm':
-	  menu();
-      mask = Mat(3, 3, CV_32F, media);
-      scaleAdd(mask, 1/9.0, Mat::zeros(3,3,CV_32F), mask1);
-      mask = mask1;
-      printmask(mask);
-      break;
-    case 'g':
-	  menu();
-      mask = Mat(3, 3, CV_32F, gauss);
-      scaleAdd(mask, 1/16.0, Mat::zeros(3,3,CV_32F), mask1);
-      mask = mask1;
-      printmask(mask);
-      break;
-    case 'h':
-	  menu();
-      mask = Mat(3, 3, CV_32F, horizontal);
-      printmask(mask);
-      break;
-    case 'v':
-	  menu();
-      mask = Mat(3, 3, CV_32F, vertical);
-      printmask(mask);
-      break;
-    case 'l':
-	  menu();
+  <pre class="highlightjs highlight"><code class="language-cpp" data-lang="cpp">
+    case &#x27;j&#x27;:
+    menu();
+    mask = Mat(3, 3, CV_32F, gauss);
+    scaleAdd(mask, 1 / 16.0, Mat::zeros(3, 3, CV_32F), mask1);
+    mask = mask1;
+    lg = true;
+    break;
+  </code></pre>
+</div>
+<br><br>
+<div class="content">
+  <pre class="highlightjs highlight"><code class="language-cpp" data-lang="cpp">
+    if (lg)
+    {
       mask = Mat(3, 3, CV_32F, laplacian);
-      printmask(mask);
-      break;
-    case 's':
-	  menu();
-      mask = Mat(3, 3, CV_32F, gauss);
-      scaleAdd(mask, 1/16.0, Mat::zeros(3,3,CV_32F), mask1);
-      mask = mask1;
-      mask = Mat(3, 3, CV_32F, laplacian);
-      printmaskLG(mask1, mask);
-      break;
-    default:
-      break;
+      filter2D(frameFiltered, frameFiltered,
+               frameFiltered.depth(), mask, Point(1, 1), 0);
     }
-  }
-  return 0;
-}</code></pre>
+  </code></pre>
 </div>
-</div>
-<div class="paragraph">
-<p>Para compilar e executar o código basta utilizar os comandos:</p>
-</div>
-<div class="paragraph">
-<p>$ make laplgauss</p>
-</div>
-<div class="paragraph">
-<p>$ ./laplgauss</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="trueresultado-5"><a class="anchor" href="#trueresultado-5"></a>Resultado</h4>
+
+<p style="text-align: justify;">
+O código completo pode ser visto aqui: <a href="codigos/laplgauss.cpp">laplgauss.cpp</a>. <br><br>
+
+Abaixo, podem ser vistos a imagem capturada, o filtro laplaciano aplicado e o filtro laplaciano do gaussiano aplicado, para efeitos de comparação.
+</p>
+
 <div class="imageblock">
-<div class="content">
-<img src="original.jpg" alt="original.jpg">
+  <div class="content">
+  <img src="figs/filori.png" alt="filori.png">
+  </div>
+  <div class="title">Imagem normal</div>
 </div>
-<div class="title">Figure 7. Imagem Original</div>
-</div>
+
 <div class="imageblock">
-<div class="content">
-<img src="resultado_filtro.jpg" alt="resultado filtro.jpg">
+  <div class="content">
+  <img src="figs/lapl.png" alt="lapl.png">
+  </div>
+  <div class="title">Imagem com filtro laplaciano.</div>
 </div>
-<div class="title">Figure 8. Imagem com filtro do laplaciano do gaussiano</div>
+
+<div class="imageblock">
+  <div class="content">
+  <img src="figs/laplg.png" alt="laplg.png">
+  </div>
+  <div class="title">Imagem com filtro laplaciano do gaussiano.</div>
 </div>
-</div>
-</div>
+
 <div class="sect2">
 <h3 id="true5-filtragem-no-dom-nio-espacial-ii"><a class="anchor" href="#true5-filtragem-no-dom-nio-espacial-ii"></a>5. Filtragem no domínio espacial II</h3>
 <div class="sect3">
@@ -1248,11 +1128,6 @@ Your browser does not support the video tag.
 </div>
 </div>
 </div>
-</div>
-</div>
-<div id="footer">
-<div id="footer-text">
-Last updated 2019-05-15 21:42:24
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.9.1/styles/github.min.css">
