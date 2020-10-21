@@ -882,252 +882,36 @@ Abaixo, podem ser vistos a imagem capturada, o filtro laplaciano aplicado e o fi
 <div class="sect3">
 <h4 id="true5-1-tilt-shift"><a class="anchor" href="#true5-1-tilt-shift"></a>5.1. Tilt-Shift</h4>
 <div class="paragraph">
-<p>As filtragens foram divididas em duas partes, para o início da segunda parte vimos o conceito de tilt-shift.Tilt-shift é uma técnica de fotografia, está presente em lentes para câmeras profissionais e semi-profissionais e envolve rotações entre o plano de foco e o plano de projeção, com o objetivo de desfocar uma região específica da fotografia.</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="truec-digo-7"><a class="anchor" href="#truec-digo-7"></a>Código</h4>
-<div class="listingblock">
-<div class="title">Código - tiltshift.cpp</div>
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-cpp" data-lang="cpp">#include &lt;iostream&gt;
-#include &lt;opencv2/opencv.hpp&gt;
+<p style="text-align: justify;"> Essa seção trabalha com o conceito de tilt-shift. O tilt-shift é um estilo de fotografia
+  que se refere ao uso de picagem/inclinação para limitação ou aumento da profundidade de campo. Ela engloba
+  dois tipos de movimento: a inclinação do plano óptico da objetiva em relação ao plano da filmagem (tilt) e 
+  o movimento paralelo da lente relativo ao plano da imagem (shift). <br><br>
 
-using namespace cv;
-using namespace std;
+  No primeiro exercício, pede-se que baseado no código disponibilizado pelo professor, o <a href="codigos/addweighted.cpp">addweighted.cpp</a>, se implemente
+  um programa que possibilite que três ajustes sejam feitas a imagem na tela de interface: 
+  um ajuste para regular a altura da região central que entrará em foco; um ajuste para regular a força de decaimento da região borrada; e 
+  um ajuste para regular a posição vertical do centro da região que entrará em foco. <br><br>
 
-double decaimento;
-int decaimento_slider = 0;
-int decaimento_slider_max = 100;
+  O código implementado pode ser conferido aqui: <a href="codigos/tiltshift.cpp">tiltshift.cpp</a> <br><br>
 
-int center_slider = 0;
-int center_slider_max = 100;
+  O vídeo abaixo demonstra o resultado do programa em funcionamento, exibindo os efeitos de desfoque implementados em uma paisagem.
 
-int posicao_slider = 0;
-int posicao_slider_max = 100;
+</p>
 
-float media[] = {1,1,1,1,1,1,1,1,1};
-
-Mat image1, image2, blended;
-Mat imageTop;
-
-char TrackbarName[50];
-
-void on_trackbar_blend(int, void*){
- decaimento = (double) decaimento_slider/decaimento_slider_max ;
- addWeighted( image1, decaimento, imageTop, 1-decaimento, 0.0, blended);
- imshow("addweighted", blended);
-}
-
-void on_trackbar(int, void*){
-  image2.copyTo(imageTop);
-
-  Size tamanho = image2.size();
-  int largura = tamanho.width;
-  int altura = tamanho.height;
-  int altura_posicao = (posicao_slider*largura)/100;
-  int limite = (center_slider*largura)/100;
-  if(altura_posicao &gt; 0){
-     if(limite&gt;=0 &amp;&amp; limite &lt;= altura-altura_posicao){
-        Mat tmp = image1(Rect(0, limite, largura, altura_posicao));
-	tmp.copyTo(imageTop(Rect(0, limite, largura,altura_posicao)));
-      }else{
-        Mat tmp = image1(Rect(0,altura - altura_posicao,largura, altura_posicao));
-        tmp.copyTo(imageTop(Rect(0,altura-altura_posicao, largura, altura_posicao)));
-     }
- }
-  on_trackbar_blend(decaimento_slider,0);
-}
-
-int main(int argvc, char** argv){
-  image1 = imread("cafe.jpg");
-  image2 = image1.clone();
-
-  Mat aux, mask, mask1;
-
-
-  mask = Mat(3, 3, CV_32F, media);
-  scaleAdd(mask, 1/9.0, Mat::zeros(3,3,CV_32F), mask1);
-  swap(mask, mask1);
-  image2.convertTo(aux, CV_32F);
-
-  for (int i = 0; i &lt; 10; i++)
-        filter2D(aux, aux, aux.depth(), mask, Point(1, 1), 0);
-    aux=abs(aux);
-    aux.convertTo(image2, CV_8UC3);
-    image1.copyTo(imageTop);
-
-  namedWindow("addweighted", 1);
-
-  sprintf( TrackbarName, "Decaimento");
-  createTrackbar( TrackbarName, "addweighted",
-				  &amp;decaimento_slider,
-				  decaimento_slider_max,
-				  on_trackbar_blend );
-  on_trackbar_blend(decaimento_slider, 0 );
-
-  sprintf( TrackbarName, "Posicao Altura" );
-  createTrackbar( TrackbarName, "addweighted",
-				  &amp;posicao_slider,
-				  posicao_slider_max,
-				  on_trackbar);
-  on_trackbar(posicao_slider, 0 );
-
-  sprintf( TrackbarName, "Centro");
-  createTrackbar( TrackbarName, "addweighted",
-				  &amp;center_slider,
-				  center_slider_max,
-				  on_trackbar);
-
-  waitKey(0);
-  return 0;
-}</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Para compilar e executar o código basta utilizar os comandos:</p>
-</div>
-<div class="paragraph">
-<p>$ make tiltshift</p>
-</div>
-<div class="paragraph">
-<p>$ ./tiltshift</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="trueresultado-6"><a class="anchor" href="#trueresultado-6"></a>Resultado</h4>
-<div class="imageblock">
-<div class="content">
-<img src="tiltshift.png" alt="tiltshift.png">
-</div>
-<div class="title">Figure 9. Imagem utilizando técnica tilt-shift.</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="true5-2-tiltshift-em-v-deo"><a class="anchor" href="#true5-2-tiltshift-em-v-deo"></a>5.2. Tiltshift em vídeo</h4>
-<div class="paragraph">
-<p>Aplicando o efeito do tilt-shift em um vídeo o resultado se como um efeito de miniaturização da cena. Para uma melhor percepção, alguns frames são descartados para gerar um vídeo em stop motion. O resultado pode ser visto no vídeo com título 'Video com tiltshift'.</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="truec-digo-8"><a class="anchor" href="#truec-digo-8"></a>Código</h4>
-<div class="listingblock">
-<div class="title">Código - tiltshift.cpp</div>
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-cpp" data-lang="cpp">#include &lt;iostream&gt;
-#include &lt;opencv2/opencv.hpp&gt;
-#include &lt;math.h&gt;
-using namespace cv;
-using namespace std;
-
-int main(int argvc, char** argv) {
-	VideoCapture video;
-	video.open("video.mp4");
-	int width, height;
-
-	if(!video.isOpened()){
-	    cout &lt;&lt; "cameras indisponiveis";
-	    return -1;
-	  }
-
-  	width=video.get(CV_CAP_PROP_FRAME_WIDTH);
-  	height=video.get(CV_CAP_PROP_FRAME_HEIGHT);
-  	Size frameSize(static_cast&lt;int&gt;(width), static_cast&lt;int&gt;(height));
-  	VideoWriter out ("saidaVideo.avi", CV_FOURCC('P','I','M','1'), 5, frameSize, true);
-
-	Mat img_in, img_discard;
-	int cols = video.get(CV_CAP_PROP_FRAME_WIDTH);
-	int rows = video.get(CV_CAP_PROP_FRAME_HEIGHT);
-        int key;
-
-	Mat img_blurred = Mat::zeros(rows, cols, CV_32FC3);
-	Mat img_out = Mat::zeros(rows, cols, CV_32FC3);
-	Mat img_focused = Mat::zeros(rows, cols, CV_32FC3);
-	Mat img_unfocused = Mat::zeros(rows, cols, CV_32FC3);
-	Mat mask_focus = Mat(rows, cols, CV_32FC3, Scalar(0, 0, 0));
-	Mat mask_unfocus = Mat(rows, cols, CV_32FC3, Scalar(1, 1, 1));
-
-	int frame_skip = 2;
-	int pass_frame = 0;
-
-	float unfocus_aux = 0.35;
-	int pos_i = unfocus_aux*rows;
-	int pos_f = rows - unfocus_aux*rows;
-	int decay = 70;
-
-	Vec3f mask_function_value;
-
-	for (int i = 0; i &lt; rows; i++) {
-		for (int j = 0; j &lt; cols; j++) {
-			mask_function_value[0] = (tanh((float(i - pos_i) / decay)) - tanh((float(i - pos_f) / decay))) / 2;
-			mask_function_value[1] = (tanh((float(i - pos_i) / decay)) - tanh((float(i - pos_f) / decay))) / 2;
-			mask_function_value[2] = (tanh((float(i - pos_i) / decay)) - tanh((float(i - pos_f) / decay))) / 2;
-			mask_focus.at&lt;Vec3f&gt;(i, j) = mask_function_value;
-		}
-	}
-	mask_unfocus = mask_unfocus - mask_focus;
-
-
-	while (true) {
-		if (pass_frame == 0) {
-			video &gt;&gt; img_in;
-		} else {
-			video &gt;&gt; img_discard;
-		}
-
-		img_in.convertTo(img_in, CV_32FC3);
-		GaussianBlur(img_in, img_blurred, Size(7, 7), 0, 0);
-
-		img_focused = img_in.mul(mask_focus);
-		img_unfocused = img_blurred.mul(mask_unfocus);
-
-		img_blurred.convertTo(img_blurred, CV_8UC3);
-
-		img_out = img_focused + img_unfocused;
-		img_out.convertTo(img_out, CV_8UC3);
-
-		img_focused.convertTo(img_focused, CV_8UC3);
-		img_unfocused.convertTo(img_unfocused, CV_8UC3);
-		imshow("img_focused", img_focused);
-		imshow("img_unfocused", img_unfocused);
-
-		if (pass_frame == 0) {
-			pass_frame = frame_skip;
-		}
-		else {
-			pass_frame -= 1;
-		}
-
-		imshow("Efeito tiltshift", img_out);
-		key = waitKey(30);
-	}
-	return 0;
-}</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Para compilar e executar o código basta utilizar os comandos:</p>
-</div>
-<div class="paragraph">
-<p>$ make tiltshiftvideo</p>
-</div>
-<div class="paragraph">
-<p>$ ./tiltshiftvideo</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="trueresultado-7"><a class="anchor" href="#trueresultado-7"></a>Resultado</h4>
 <div class="videoblock">
-<div class="title">Video com tiltshift .</div>
-<div class="content">
-<video src="tiltshiftvideo.mp4" controls>
-Your browser does not support the video tag.
-</video>
+  <div class="title">Vídeo demonstrando o funcionamento do programa Tilt-Shift</div>
+  <div class="content">
+  <video src="figs/tiltshift1.mp4" controls>
+  Your browser does not support the video tag.
+  </video>
 </div>
 </div>
+
 </div>
 </div>
-</div>
+
+<div class="sect3">
+<h4 id="true5-2-tiltshift-em-v-deo"><a class="anchor" href="#true5-2-tiltshift-em-v-deo"></a>5.2. Tilt-Shift em vídeo</h4>
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.9.1/styles/github.min.css">
