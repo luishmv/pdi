@@ -42,13 +42,13 @@ int main(int argvc, char **argv)
 
   namedWindow("addweighted", 1);
 
-  sprintf(TrackbarName, "Altura:\t %d", top_slider_max);
+  sprintf(TrackbarName, "Altura:");
   createTrackbar(TrackbarName, "addweighted", &h_slider, top_slider_max, on_trackbar_line);
 
-  sprintf(TrackbarName, "Força de decaimento: %d", top_slider_max);
+  sprintf(TrackbarName, "Decaimento:");
   createTrackbar(TrackbarName, "addweighted", &v_slider, top_slider_max, on_trackbar_line);
 
-  sprintf(TrackbarName, "Posição: %d", top_slider_max);
+  sprintf(TrackbarName, "Posicão:");
   createTrackbar(TrackbarName, "addweighted", &p_slider, top_slider_max, on_trackbar_line);
 
   on_trackbar_line(0, 0);
